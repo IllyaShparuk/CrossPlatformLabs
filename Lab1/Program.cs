@@ -12,19 +12,30 @@ namespace Lab1
 
             string inputFilePath = Path.Combine(basePath, "INPUT.txt");
             string outputFilePath = Path.Combine(basePath, "OUTPUT.txt");
+            int[] ints = ParseInput(inputFilePath);
+
+            int res = BinaryNumbersCount(ints[0], ints[1]);
+            File.WriteAllText(outputFilePath, res.ToString());
+        }
+
+        public static int[] ParseInput(string inputFilePath)
+        {
             string[] numbers = File.ReadAllLines(inputFilePath)[0].Trim().Split(' ');
             if (numbers.Length != 2)
                 throw new Exception($"Invalid numbers of inputs (2 != {numbers.Length})): {inputFilePath}");
 
             var ints = numbers.Select(x =>
             {
-                if (int.TryParse(x, out int number))
+                if (int.TryParse(x, out int number) && IsInRange(number))
                     return number;
                 throw new Exception($"Invalid number: {x}");
             }).ToArray();
+            return ints;
+        }
 
-            int res = BinaryNumbersCount(ints[0], ints[1]);
-            File.WriteAllText(outputFilePath, res.ToString());
+        public static bool IsInRange(int value)
+        {
+            return value is >= 1 and <= 109;
         }
 
         private static string? FindProjectDirectory(string? currentDirectory)
