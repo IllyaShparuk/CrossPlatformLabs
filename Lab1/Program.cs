@@ -13,9 +13,11 @@ namespace Lab1
             string inputFilePath = Path.Combine(basePath, "INPUT.txt");
             string outputFilePath = Path.Combine(basePath, "OUTPUT.txt");
             int[] ints = ParseInput(inputFilePath);
+            Console.WriteLine($"Parsed numbers from file [\"{inputFilePath}\"]: N {ints[0]}, K {ints[1]}");
 
             int res = BinaryNumbersCount(ints[0], ints[1]);
             File.WriteAllText(outputFilePath, res.ToString());
+            Console.WriteLine($"Result is written to output file [\"{outputFilePath}\"]: {res}");
         }
 
         public static int[] ParseInput(string inputFilePath)
@@ -33,10 +35,7 @@ namespace Lab1
             return ints;
         }
 
-        public static bool IsInRange(int value)
-        {
-            return value is >= 1 and <= 109;
-        }
+        public static bool IsInRange(int value) => value is >= 1 and <= 109;
 
         private static string? FindProjectDirectory(string? currentDirectory)
         {
