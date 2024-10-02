@@ -7,23 +7,24 @@ namespace Lab1
     {
         private static void Main()
         {
-            string? basePath = AppContext.BaseDirectory;
-            basePath = FindProjectDirectory(basePath);
-            if (basePath == null) throw new Exception("Could not find project directory");
+            string basePath = FindProjectDirectory(AppContext.BaseDirectory) ??
+                              throw new Exception("Could not find project directory");
+
             string inputFilePath = Path.Combine(basePath, "INPUT.txt");
             string outputFilePath = Path.Combine(basePath, "OUTPUT.txt");
-            string[] lines = File.ReadAllLines(inputFilePath);
-            if (lines == null) throw new Exception("Could not read input file or there is no INPUT.txt");
-            List<string> res = new List<string>();
-            foreach (string line in lines)
-            {
-                string[] numbers = line.Split(" ");
-                if (!int.TryParse(numbers[0], out int n) || !int.TryParse(numbers[1], out int k)) continue;
-                res.Add(BinaryNumbersCount(n, k).ToString());
-                Console.WriteLine($"n = {n}, k = {k}: {res.Last()}");
-            }
+            string[] numbers = File.ReadAllLines(inputFilePath)[0].Trim().Split(' ');
+            if (numbers.Length != 2)
+                throw new Exception($"Invalid numbers of inputs (2 != {numbers.Length})): {inputFilePath}");
 
-            File.WriteAllLines(outputFilePath, res);
+            var ints = numbers.Select(x =>
+            {
+                if (int.TryParse(x, out int number))
+                    return number;
+                throw new Exception($"Invalid number: {x}");
+            }).ToArray();
+
+            int res = BinaryNumbersCount(ints[0], ints[1]);
+            File.WriteAllText(outputFilePath, res.ToString());
         }
 
         private static string? FindProjectDirectory(string? currentDirectory)
@@ -37,7 +38,7 @@ namespace Lab1
         }
 
 
-        private static int BinaryNumbersCount(int n, int k)
+        public static int BinaryNumbersCount(int n, int k)
         {
             int count = 0;
             for (int i = 1; i <= n; i++)
@@ -50,7 +51,7 @@ namespace Lab1
             return count;
         }
 
-        private static bool ZerosCount(string binary, int k)
+        public static bool ZerosCount(string binary, int k)
         {
             int zeros = 0;
             foreach (var bit in binary)
@@ -59,7 +60,7 @@ namespace Lab1
             return zeros == k;
         }
 
-        private static string DecimalToBinary(int number) => DecimalToBinaryHelper(number, "");
+        public static string DecimalToBinary(int number) => DecimalToBinaryHelper(number, "");
 
         private static string DecimalToBinaryHelper(int number, string binary)
         {
