@@ -24,18 +24,25 @@ namespace Lab1
         {
             string[] numbers = File.ReadAllLines(inputFilePath)[0].Trim().Split(' ');
             if (numbers.Length != 2)
-                throw new Exception($"Invalid numbers of inputs (2 != {numbers.Length})): {inputFilePath}");
+                throw new Exception($"Invalid number of inputs (2 != {numbers.Length})): {inputFilePath}");
 
             var ints = numbers.Select(x =>
             {
-                if (int.TryParse(x, out int number) && IsInRange(number))
+                if (int.TryParse(x, out int number))
                     return number;
                 throw new Exception($"Invalid number: {x}");
             }).ToArray();
+
+            if (!IsInRange(ints[0], 1, 109))
+                throw new Exception($"Invalid value for N: {ints[0]}. It should be between 1 and 109.");
+
+            if (!IsInRange(ints[1], 0, 109))
+                throw new Exception($"Invalid value for K: {ints[1]}. It should be between 0 and 109.");
+
             return ints;
         }
 
-        public static bool IsInRange(int value) => value is >= 1 and <= 109;
+        public static bool IsInRange(int value, int min, int max) => value >= min && value <= max;
 
         private static string? FindProjectDirectory(string? currentDirectory)
         {

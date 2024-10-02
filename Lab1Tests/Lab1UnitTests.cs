@@ -71,12 +71,12 @@ public class Lab1UnitTests
 
     [Theory]
     [InlineData(-5, false)]
-    [InlineData(10, true)]
-    [InlineData(109, true)]
-    [InlineData(1, true)]
+    [InlineData(0, false, true)]
+    [InlineData(109, true, true)]
+    [InlineData(0, true)]
     [InlineData(110, false)]
-    public void IsInRangeTest(int value, bool expectedResult)
+    public void IsInRangeTest(int value, bool expectedResult, bool isN = false)
     {
-        Assert.Equal(expectedResult, IsInRange(value));
+        Assert.Equal(expectedResult, isN ? IsInRange(value, 1, 109) : IsInRange(value, 0, 109));
     }
 }
