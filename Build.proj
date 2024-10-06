@@ -9,18 +9,18 @@
   <!-- Target for building the project -->
   <Target Name="Build">
     <Message Text="Building project: $(SolutionPath)" />
-    <Exec Command="dotnet build $(SolutionPath)" />
+    <Exec Command="dotnet build &quot;$(SolutionPath)&quot;" />
   </Target>
 
   <!-- Target for running the project -->
   <Target Name="Run">
     <Message Text="Running project: $(SolutionPath)" />
-    <Exec Command="dotnet run --project $(SolutionPath)" />
+    <Exec Command="dotnet run --project &quot;$(SolutionPath)&quot;" />
   </Target>
 
   <!-- Target for testing the project -->
   <Target Name="Test">
     <Message Text="Testing project: $(SolutionTestPath)" />
-    <Exec Command="dotnet test $(SolutionTestPath) --logger &quot;console;verbosity=detailed&quot;" />
+    <Exec Command="dotnet test &quot;$(SolutionTestPath)&quot; --logger &quot;console;verbosity=detailed&quot;" />
   </Target>
 </Project>
