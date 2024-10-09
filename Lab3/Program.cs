@@ -17,9 +17,8 @@ public static class Program
             Console.WriteLine($"Read lines from file [\"{inputFilePath}\"]");
 
             Labyrinth colorfulLabyrinth = new Labyrinth(lines);
-            int currentRoom = colorfulLabyrinth.CurrentRoom();
 
-            string result = currentRoom == 0 ? "INCORRECT" : currentRoom.ToString();
+            string result = colorfulLabyrinth.GetResult();
             File.WriteAllText(outputFilePath, result);
             Console.WriteLine($"Result is written to output file [\"{outputFilePath}\"]: {result}");
         }

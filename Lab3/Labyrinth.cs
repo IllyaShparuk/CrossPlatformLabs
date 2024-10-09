@@ -26,7 +26,6 @@ public class Labyrinth
         }
         if (!int.TryParse(firstLine[0], out int rooms) || !int.TryParse(firstLine[1], out int corridors))
             throw new Exception("Invalid labyrinth data");
-        Console.WriteLine($"Number of rooms n = {rooms} and corridors m = {corridors}");
         return (rooms, corridors);
     }
 
@@ -58,6 +57,12 @@ public class Labyrinth
         }
         _roomList[room1][color] = room2;
         _roomList[room2][color] = room1;
+    }
+
+    public string GetResult()
+    {
+        int currentRoom = CurrentRoom();
+        return currentRoom == 0 ? "INCORRECT" : currentRoom.ToString();
     }
 
     public int CurrentRoom()
