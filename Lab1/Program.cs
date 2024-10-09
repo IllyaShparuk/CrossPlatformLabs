@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Helpers;
 
 namespace Lab1
 {
@@ -7,17 +8,24 @@ namespace Lab1
     {
         private static void Main()
         {
-            string basePath = Helpers.FileSearch.FindProjectDirectory(AppContext.BaseDirectory) ??
-                              throw new Exception("Could not find project directory");
+            try
+            {
+                string basePath = FileSearch.FindProjectDirectory(AppContext.BaseDirectory) ??
+                                  throw new Exception("Could not find project directory");
 
-            string inputFilePath = Path.Combine(basePath, "INPUT.txt");
-            string outputFilePath = Path.Combine(basePath, "OUTPUT.txt");
-            int[] ints = ParseInput(inputFilePath);
-            Console.WriteLine($"Parsed numbers from file [\"{inputFilePath}\"]: N {ints[0]}, K {ints[1]}");
+                string inputFilePath = Path.Combine(basePath, "INPUT.txt");
+                string outputFilePath = Path.Combine(basePath, "OUTPUT.txt");
+                int[] ints = ParseInput(inputFilePath);
+                Console.WriteLine($"Parsed numbers from file [\"{inputFilePath}\"]: N {ints[0]}, K {ints[1]}");
 
-            int res = BinaryNumbersCount(ints[0], ints[1]);
-            File.WriteAllText(outputFilePath, res.ToString());
-            Console.WriteLine($"Result is written to output file [\"{outputFilePath}\"]: {res}");
+                int res = BinaryNumbersCount(ints[0], ints[1]);
+                File.WriteAllText(outputFilePath, res.ToString());
+                Console.WriteLine($"Result is written to output file [\"{outputFilePath}\"]: {res}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error message: " + e.Message);
+            }
         }
 
         public static int[] ParseInput(string inputFilePath)

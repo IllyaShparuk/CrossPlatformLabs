@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Helpers;
 
 namespace Lab2
 {
@@ -7,18 +8,25 @@ namespace Lab2
     {
         private static void Main()
         {
-            string basePath = Helpers.FileSearch.FindProjectDirectory(AppContext.BaseDirectory) ??
-                              throw new Exception("Could not find project directory");
+            try
+            {
+                string basePath = FileSearch.FindProjectDirectory(AppContext.BaseDirectory) ??
+                                  throw new Exception("Could not find project directory");
 
-            string inputFilePath = Path.Combine(basePath, "INPUT.txt");
-            string outputFilePath = Path.Combine(basePath, "OUTPUT.txt");
-            int stepNmbr = ParseInput(inputFilePath);
-            Console.WriteLine($"Parsed number from file [\"{inputFilePath}\"]: {stepNmbr}");
+                string inputFilePath = Path.Combine(basePath, "INPUT.txt");
+                string outputFilePath = Path.Combine(basePath, "OUTPUT.txt");
+                int stepNmbr = ParseInput(inputFilePath);
+                Console.WriteLine($"Parsed number from file [\"{inputFilePath}\"]: {stepNmbr}");
 
-            long res = BallJumpingDown(stepNmbr);
-            string result = res.ToString("N0");
-            File.WriteAllText(outputFilePath, result);
-            Console.WriteLine($"Result is written to output file [\"{outputFilePath}\"]: {result}");
+                long res = BallJumpingDown(stepNmbr);
+                string result = res.ToString("N0");
+                File.WriteAllText(outputFilePath, result);
+                Console.WriteLine($"Result is written to output file [\"{outputFilePath}\"]: {result}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error message: "+ e.Message);
+            }
         }
 
         public static sbyte ParseInput(string inputFilePath)
