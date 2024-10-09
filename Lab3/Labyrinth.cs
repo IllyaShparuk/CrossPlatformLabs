@@ -24,7 +24,8 @@ public class Labyrinth
         {
             throw new Exception($"Invalid first line: {firstLine.Length} != 2");
         }
-        if (!int.TryParse(firstLine[0], out int rooms) || !int.TryParse(firstLine[1], out int corridors))
+        if (!int.TryParse(firstLine[0], out int rooms) || rooms is < 1 or > 10000 ||
+            !int.TryParse(firstLine[1], out int corridors) || corridors is < 1 or > 100000)
             throw new Exception("Invalid labyrinth data");
         return (rooms, corridors);
     }
@@ -34,9 +35,9 @@ public class Labyrinth
         for (int i = 1; i <= _m; i++)
         {
             string[] corridorData = _instructions[i].Split(' ');
-            if (!int.TryParse(corridorData[0], out int u) ||
-                !int.TryParse(corridorData[1], out int v) ||
-                !int.TryParse(corridorData[2], out int c) )
+            if (!int.TryParse(corridorData[0], out int u) || !(u >= 1 && u <= _n) ||
+                !int.TryParse(corridorData[1], out int v) || !(v >= 1 && v <= _n) ||
+                !int.TryParse(corridorData[2], out int c) || !(c is >= 1 and <= 100))
                 throw new Exception("Invalid corridor data");
             AddCorridor(u, v, c);
         }
@@ -67,7 +68,8 @@ public class Labyrinth
 
     public int CurrentRoom()
     {
-        int k = int.Parse(_instructions[_m + 1]);
+        if (!int.TryParse(_instructions[_m + 1], out int k) || k is < 0 or > 100000)
+            throw new Exception("Invalid path data");
         if (k == 0)
             return 1;
 
