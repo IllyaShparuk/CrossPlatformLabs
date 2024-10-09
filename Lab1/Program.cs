@@ -7,7 +7,7 @@ namespace Lab1
     {
         private static void Main()
         {
-            string basePath = FindProjectDirectory(AppContext.BaseDirectory) ??
+            string basePath = Helpers.FileSearch.FindProjectDirectory(AppContext.BaseDirectory) ??
                               throw new Exception("Could not find project directory");
 
             string inputFilePath = Path.Combine(basePath, "INPUT.txt");
@@ -43,16 +43,6 @@ namespace Lab1
         }
 
         public static bool IsInRange(int value, int min) => value >= min && value <= 1000000000;
-
-        private static string? FindProjectDirectory(string? currentDirectory)
-        {
-            while (currentDirectory != null && !Directory.GetFiles(currentDirectory, "*.csproj").Any())
-            {
-                currentDirectory = Directory.GetParent(currentDirectory)?.FullName;
-            }
-
-            return currentDirectory;
-        }
 
 
         public static int BinaryNumbersCount(int n, int k)

@@ -7,7 +7,7 @@ namespace Lab2
     {
         private static void Main()
         {
-            string basePath = FindProjectDirectory(AppContext.BaseDirectory) ??
+            string basePath = Helpers.FileSearch.FindProjectDirectory(AppContext.BaseDirectory) ??
                               throw new Exception("Could not find project directory");
 
             string inputFilePath = Path.Combine(basePath, "INPUT.txt");
@@ -29,16 +29,6 @@ namespace Lab2
                 throw new Exception($"Invalid input file [\"{inputFilePath}\"].");
             }
             return result;
-        }
-
-        private static string? FindProjectDirectory(string? currentDirectory)
-        {
-            while (currentDirectory != null && !Directory.GetFiles(currentDirectory, "*.csproj").Any())
-            {
-                currentDirectory = Directory.GetParent(currentDirectory)?.FullName;
-            }
-
-            return currentDirectory;
         }
 
         public static long BallJumpingDown(int n)
