@@ -13,7 +13,7 @@ public class Lab1UnitTests
     [InlineData(8)]
     [InlineData(16)]
     [InlineData(32)]
-    [InlineData(109)]
+    [InlineData(128)]
     public void DecimalToBinaryTest(int number)
     {
         string expectedBinary = Convert.ToString(number, 2);
@@ -38,7 +38,7 @@ public class Lab1UnitTests
     [InlineData(8, 0, 3)] // 1, 11, 111
     [InlineData(16, 3, 1)] // 1000
     [InlineData(32, 4, 1)] // 10000
-    [InlineData(100, 5, 7)] // 100000, 1000001, 1000010, 1000100, 1001000, 1010000, 1100000
+    [InlineData(1000, 5, 210)] // From Examples
     public void BinaryNumbersCountTest(int n, int k, int expectedCount)
     {
         int result = BinaryNumbersCount(n, k);
@@ -74,9 +74,9 @@ public class Lab1UnitTests
     [InlineData(0, false, true)]
     [InlineData(109, true, true)]
     [InlineData(0, true)]
-    [InlineData(110, false)]
+    [InlineData(1000000001, false)]
     public void IsInRangeTest(int value, bool expectedResult, bool isN = false)
     {
-        Assert.Equal(expectedResult, isN ? IsInRange(value, 1, 109) : IsInRange(value, 0, 109));
+        Assert.Equal(expectedResult, isN ? IsInRange(value, 1) : IsInRange(value, 0));
     }
 }

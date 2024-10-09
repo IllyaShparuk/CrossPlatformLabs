@@ -33,16 +33,16 @@ namespace Lab1
                 throw new Exception($"Invalid number: {x}");
             }).ToArray();
 
-            if (!IsInRange(ints[0], 1, 109))
-                throw new Exception($"Invalid value for N: {ints[0]}. It should be between 1 and 109.");
+            if (!IsInRange(ints[0], 1))
+                throw new Exception($"Invalid value for N: {ints[0]}. It should be between 1 and 10^9.");
 
-            if (!IsInRange(ints[1], 0, 109))
-                throw new Exception($"Invalid value for K: {ints[1]}. It should be between 0 and 109.");
+            if (!IsInRange(ints[1], 0))
+                throw new Exception($"Invalid value for K: {ints[1]}. It should be between 0 and 10^9.");
 
             return ints;
         }
 
-        public static bool IsInRange(int value, int min, int max) => value >= min && value <= max;
+        public static bool IsInRange(int value, int min) => value >= min && value <= 1000000000;
 
         private static string? FindProjectDirectory(string? currentDirectory)
         {
