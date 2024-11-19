@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace Lab4;
@@ -16,7 +17,7 @@ public class Program
 
     private void OnExecute() => CommandLineApplication.Execute<Program>("help");
 
-    [Command(Name="help")]
+    [Command(Name = "help")]
     class Help
     {
         private void OnExecute()
@@ -48,6 +49,63 @@ public class Program
     [Command(Name = "set-path")]
     class SetPath
     {
-        // TODO
+        [Option(ShortName = "i", LongName = "input", Description = "The path to a file or folder"), Required]
+        private string ProjectPath { get; } = null!;
+
+        private int OnExecute()
+        {
+            if (string.IsNullOrWhiteSpace(ProjectPath))
+            {
+                Console.WriteLine("Path is not specified.");
+                return 1;
+            }
+
+            SetEnvironmentVariable("LAB_PATH", ProjectPath);
+            Console.WriteLine($"Variable LAB_PATH set to: {ProjectPath}");
+            return 0;
+        }
+
+        private void SetEnvironmentVariable(string variable, string value)
+        {
+            try
+            {
+                if (OperatingSystem.IsWindows())
+                    Environment.SetEnvironmentVariable(variable, value, EnvironmentVariableTarget.Machine);
+                else
+                    UpdateOrAppendVariable("/etc/environment", variable, value);
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                string profileVariablePath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    ".bashrc");
+                UpdateOrAppendVariable(profileVariablePath, variable, value, e);
+                Console.WriteLine("Please run 'source ~/.bashrc' or open a new terminal to apply changes.");
+            }
+        }
+
+        private void UpdateOrAppendVariable(string filePath, string variable, string value,
+            UnauthorizedAccessException? exception = null)
+        {
+            var lines = File.ReadAllLines(filePath).ToList();
+            bool updated = false;
+
+            for (int i = 0; i < lines.Count; i++)
+            {
+                if (lines[i].StartsWith($"{variable}=") || lines[i].StartsWith($"export {variable}="))
+                {
+                    lines[i] = CheckException(exception) + $"{variable}={value}";
+                    updated = true;
+                    break;
+                }
+            }
+
+            if (!updated)
+                lines.Add(CheckException(exception) + $"{variable}={value}");
+
+            File.WriteAllLines(filePath, lines);
+        }
+
+        string CheckException(UnauthorizedAccessException? e = null) => e != null ? "export " : "";
     }
 }
