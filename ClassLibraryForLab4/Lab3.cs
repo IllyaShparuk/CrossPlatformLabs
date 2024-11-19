@@ -15,6 +15,10 @@ public static class Lab3
             File.WriteAllText(outputFilePath, result);
             Console.WriteLine($"Result is written to output file [\"{outputFilePath}\"]: {result}");
         }
+        catch (FileNotFoundException)
+        {
+            throw;
+        }
         catch (Exception e)
         {
             Console.WriteLine("Error message: " + e.Message);

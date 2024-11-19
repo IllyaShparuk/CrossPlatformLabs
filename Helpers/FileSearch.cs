@@ -11,4 +11,9 @@ public static class FileSearch
 
         return currentDirectory;
     }
+
+    public static bool FindFile(string currentDirectory, string fileName)
+    {
+        return Directory.GetFiles(currentDirectory, fileName).Any();
+    }
 }

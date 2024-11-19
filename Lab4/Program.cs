@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using Helpers;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace Lab4;
@@ -32,11 +33,82 @@ public class Program
     }
 
     [Command(Name = "run")]
+    [Subcommand(typeof(Lab1Logic), typeof(Lab2Logic), typeof(Lab3Logic))]
     class Run
     {
-        // TODO
-        private void OnExecute() => Console.WriteLine("Hello World!");
+        private void OnExecute()
+        {
+            Console.WriteLine("Set required Lab to execute:");
+            Console.WriteLine("\tlab1, lab2 or lab3.");
+            Console.WriteLine(Environment.NewLine + "Help:");
+            CommandLineApplication.Execute<Program>("help");
+        }
+
+        abstract class LabBase
+        {
+            [Option(ShortName = "i", LongName = "input", Description = "Input file path")]
+            private string InputPath { get; } = string.Empty;
+
+            [Option(ShortName = "o", LongName = "output", Description = "Output file path")]
+            private string OutputPath { get; } = string.Empty;
+
+            protected void ExecuteLab(Action<string, string> labAction)
+            {
+                var input = string.IsNullOrEmpty(InputPath) ? "INPUT.txt" : InputPath;
+                var output = string.IsNullOrEmpty(OutputPath) ? "OUTPUT.txt" : OutputPath;
+
+                if (input != InputPath)
+                {
+                    string? labPath = Environment.GetEnvironmentVariable("LAB_PATH");
+                    if (labPath != null && FileSearch.FindFile(labPath, input))
+                    {
+                        input = Path.Combine(labPath, input);
+                    }
+                    else
+                    {
+                        labPath = FileSearch.FindProjectDirectory(AppContext.BaseDirectory) ??
+                                  throw new DirectoryNotFoundException("Could not find project directory");
+                        input = Path.Combine(labPath, input);
+                    }
+
+                    if (output != OutputPath) output = Path.Combine(labPath, output);
+                }
+                else
+                {
+                    output = Path.Combine(input, "..", output);
+                }
+
+                try
+                {
+                    labAction(input, output);
+                }
+                catch (FileNotFoundException e)
+                {
+                    Console.WriteLine("Error:" + e.Message);
+                    throw;
+                }
+            }
+        }
+
+        [Command(Name = "lab1")]
+        class Lab1Logic : LabBase
+        {
+            private void OnExecute() => ExecuteLab(ClassLibraryForLab4.Lab1.Start);
+        }
+
+        [Command(Name = "lab2")]
+        class Lab2Logic : LabBase
+        {
+            private void OnExecute() => ExecuteLab(ClassLibraryForLab4.Lab2.Start);
+        }
+
+        [Command(Name = "lab3")]
+        class Lab3Logic : LabBase
+        {
+            private void OnExecute() => ExecuteLab(ClassLibraryForLab4.Lab3.Start);
+        }
     }
+
 
     [Command(Name = "version")]
     class Version
@@ -49,8 +121,8 @@ public class Program
     [Command(Name = "set-path")]
     class SetPath
     {
-        [Option(ShortName = "i", LongName = "input", Description = "The path to a file or folder"), Required]
-        private string ProjectPath { get; } = null!;
+        [Option(ShortName = "p", LongName = "path", Description = "The path to a file or folder"), Required]
+        private string ProjectPath { get; } = string.Empty;
 
         private int OnExecute()
         {

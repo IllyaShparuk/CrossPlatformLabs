@@ -13,6 +13,10 @@
                 File.WriteAllText(outputFilePath, res.ToString());
                 Console.WriteLine($"Result is written to output file [\"{outputFilePath}\"]: {res}");
             }
+            catch (FileNotFoundException)
+            {
+                throw;
+            }
             catch (Exception e)
             {
                 Console.WriteLine("Error message: " + e.Message);
