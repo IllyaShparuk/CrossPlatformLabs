@@ -5,6 +5,14 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Version>0.5</Version>
+        <Authors>Illia Shparuk</Authors>
     </PropertyGroup>
-
+    <ItemGroup>
+        <ProjectReference Include="..\ClassLibraryForLab4\ClassLibraryForLab4.csproj" />
+        <ProjectReference Include="..\Helpers\Helpers.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
+    </ItemGroup>
 </Project>
