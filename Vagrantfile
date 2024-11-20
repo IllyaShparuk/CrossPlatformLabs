@@ -1,70 +1,109 @@
-# -*- mode: ruby -*-
-# vi: set ft=ruby :
-
-# All Vagrant configuration is done below. The "2" in Vagrant.configure
-# configures the configuration version (we support older styles for
-# backwards compatibility). Please don't change it unless you know what
-# you're doing.
 Vagrant.configure("2") do |config|
-  # The most common configuration options are documented and commented below.
-  # For a complete reference, please see the online documentation at
-  # https://docs.vagrantup.com.
 
-  # Every Vagrant development environment requires a box. You can search for
-  # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "base"
+  config.vm.define "ubuntu" do |ubuntu|
+    ubuntu.vm.box = "bento/ubuntu-24.04"
+    ubuntu.vm.hostname = "VagrantVM"
+    ubuntu.vm.provider "virtualbox" do |vb|
+      vb.name = "VagrantVM"
+      vb.gui = false
+      vb.memory = "5360"
+      vb.cpus = 6
+    end
+    ubuntu.vm.synced_folder ".", "/home/vagrant/project"
+    ubuntu.ssh.insert_key = false
 
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
-  # config.vm.box_check_update = false
+    ubuntu.vm.provision "shell", inline: <<-SHELL
+      sudo apt remove -y 'dotnet*' 'aspnet*' 'netstandard*' || true
+      echo "Package: dotnet* aspnet* netstandard*" | sudo tee /etc/apt/preferences.d/dotnet
+      echo "Pin: origin \"archive.ubuntu.com\"" | sudo tee -a /etc/apt/preferences.d/dotnet
+      echo "Pin-Priority: -10" | sudo tee -a /etc/apt/preferences.d/dotnet
+      echo "" | sudo tee -a /etc/apt/preferences.d/dotnet
+      echo "Package: dotnet* aspnet* netstandard*" | sudo tee -a /etc/apt/preferences.d/dotnet
+      echo "Pin: origin \"security.ubuntu.com\"" | sudo tee -a /etc/apt/preferences.d/dotnet
+      echo "Pin-Priority: -10" | sudo tee -a /etc/apt/preferences.d/dotnet
+      wget https://packages.microsoft.com/config/ubuntu/24.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+      sudo dpkg -i packages-microsoft-prod.deb
+      rm packages-microsoft-prod.deb
+      sudo apt-get update
+      sudo apt-get install -y gpg curl wget apt-transport-https software-properties-common
+      sudo apt-get install -y dotnet-sdk-6.0
+      dotnet --info || { echo "Error installing .NET SDK"; exit 1; }
+    SHELL
 
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine. In the example below,
-  # accessing "localhost:8080" will access port 80 on the guest machine.
-  # NOTE: This will enable public access to the opened port
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
+    ubuntu.vm.provision "shell", privileged: false, inline: <<-SHELL
+      dotnet nuget add source http://10.0.2.2:8080/v3/index.json -n "BaGet"
+      dotnet tool install --global IShparuk --version 0.5.0 --add-source http://10.0.2.2:8080/v3/index.json
+      echo 'export PATH="$PATH:$HOME/.dotnet/tools"' >> ~/.bashrc
+      source ~/.bashrc
+      IShparuk --help || { echo "Error with IShparuk"; exit 1; }
+    SHELL
+  end
 
-  # Create a forwarded port mapping which allows access to a specific port
-  # within the machine from a port on the host machine and only allow access
-  # via 127.0.0.1 to disable public access
-  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+  config.vm.define "windows" do |windows|
+    windows.vm.box = "StefanScherer/windows_2019"
+    windows.vm.communicator = "winrm"
 
-  # Create a private network, which allows host-only access to the machine
-  # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
+    windows.vm.provider "virtualbox" do |vb|
+      vb.name = "WindowsVM"
+      vb.gui = true
+      vb.memory = "10240"
+      vb.cpus = 5
+      vb.customize ["modifyvm", :id, "--vram", "128"]
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
+      vb.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+    end
 
-  # Create a public network, which generally matched to bridged network.
-  # Bridged networks make the machine appear as another physical device on
-  # your network.
-  # config.vm.network "public_network"
+    # Налаштування портів для Windows
+    windows.vm.network "forwarded_port", guest: 5050, host: 5052, auto_correct: true
+    windows.vm.network "forwarded_port", guest: 5000, host: 5003, auto_correct: true
+    windows.vm.network "forwarded_port", guest: 3389, host: 33389, auto_correct: true
+    windows.vm.network "forwarded_port", guest: 5985, host: 55985, auto_correct: true
 
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
+    windows.winrm.username = "vagrant"
+    windows.winrm.password = "vagrant"
+    windows.winrm.transport = :negotiate
+    windows.winrm.basic_auth_only = false
 
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
+    windows.vm.provision "shell", inline: <<-SHELL
+      Set-ExecutionPolicy Bypass -Scope Process -Force
+      [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+      iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   apt-get update
-  #   apt-get install -y apache2
-  # SHELL
+      choco install dotnet-sdk -y --no-progress
+
+      refreshenv
+
+      dotnet nuget add source http://10.0.2.2:8080/v3/index.json -n "BaGet"
+      dotnet tool install --global IShparuk --version 0.5.0 --add-source http://10.0.2.2:8080/v3/index.json
+    SHELL
+  end
+
+  config.vm.define "macos" do |macos|
+    macos.vm.box = "ramsey/macos-catalina"
+    macos.vm.hostname = "MacOSVM"
+
+    macos.vm.provider "virtualbox" do |vb|
+      vb.name = "MacOSVM"
+      vb.gui = true
+      vb.memory = "10240"
+      vb.cpus = 4
+    end
+
+    macos.vm.provision "shell", inline: <<-SHELL
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      brew update
+      brew install --cask dotnet-sdk
+
+      curl -I http://10.0.2.2:8080/v3/index.json|| echo "BaGet server is not accessible"
+    SHELL
+
+    macos.vm.provision "shell", privileged: false, inline: <<-SHELL
+      dotnet nuget add source http://10.0.2.2:8080/v3/index.json -n "BaGet"
+      dotnet tool install --global IShparuk --version 0.5.0 --add-source http://10.0.2.2:8080/v3/index.json
+
+      echo 'export PATH="$PATH:$HOME/.dotnet/tools"' >> ~/.zshrc
+      export PATH="$PATH:$HOME/.dotnet/tools"
+    SHELL
+  end
 end
