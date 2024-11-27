@@ -1,5 +1,6 @@
 using System;
 using Lab3;
+using ClassLibraryForLab3;
 using Xunit;
 
 namespace Lab3Tests;
@@ -66,25 +67,25 @@ public class Lab3UnitTests
 
     [Theory]
     [InlineData("3 2",
-                "1 2 10",
-                "1 4 5",
-                "5",
-                "10 10 10 10 5")] // One of the rooms > N
+        "1 2 10",
+        "1 4 5",
+        "5",
+        "10 10 10 10 5")] // One of the rooms > N
     [InlineData("i 2",
-                "1 2 10",
-                "1 4 5",
-                "5",
-                "10 10 10 10 5")] // N as a symbol 'i'
+        "1 2 10",
+        "1 4 5",
+        "5",
+        "10 10 10 10 5")] // N as a symbol 'i'
     [InlineData("3 2",
-                "1 2 101",
-                "1 3 5",
-                "5",
-                "10 10 10 10 5")] // Color > 100
+        "1 2 101",
+        "1 3 5",
+        "5",
+        "10 10 10 10 5")] // Color > 100
     [InlineData("3 2",
-                "1 2 10",
-                "1 4 red",
-                "5",
-                "10 10 10 10 5")] // Color as a word
+        "1 2 10",
+        "1 4 red",
+        "5",
+        "10 10 10 10 5")] // Color as a word
     public void InvalidLabyrinthData(params string[] input)
     {
         Assert.Throws<Exception>(() => new Labyrinth(input));

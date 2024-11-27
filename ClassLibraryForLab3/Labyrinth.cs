@@ -1,4 +1,4 @@
-namespace Lab3;
+namespace ClassLibraryForLab3;
 
 public class Labyrinth
 {

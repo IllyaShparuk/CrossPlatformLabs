@@ -1,5 +1,5 @@
-﻿using Helpers;
-
+﻿using ClassLibraryForLab3;
+using Helpers;
 namespace Lab3;
 
 public static class Program
