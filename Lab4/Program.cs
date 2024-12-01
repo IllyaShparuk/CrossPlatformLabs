@@ -129,7 +129,7 @@ public class Program
             if (string.IsNullOrWhiteSpace(ProjectPath))
             {
                 Console.WriteLine("Path is not specified.");
-                return 1;
+                return -1;
             }
 
             SetEnvironmentVariable("LAB_PATH", ProjectPath);
@@ -144,15 +144,18 @@ public class Program
                 if (OperatingSystem.IsWindows())
                     Environment.SetEnvironmentVariable(variable, value, EnvironmentVariableTarget.Machine);
                 else
-                    UpdateOrAppendVariable("/etc/environment", variable, value);
+                {
+                    string path = OperatingSystem.IsLinux() ? "/etc/environment" : "/etc/paths"; // /etc/paths for Mac 
+                    UpdateOrAppendVariable(path, variable, value);
+                }
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException e) // if sudo isn't present in dotnet run set-path || dotnet run run
             {
                 string profileVariablePath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                    ".bashrc");
+                    ".bash_profile");
                 UpdateOrAppendVariable(profileVariablePath, variable, value, e);
-                Console.WriteLine("Please run 'source ~/.bashrc' or open a new terminal to apply changes.");
+                Console.WriteLine("Please run 'source ~/.bash_profile' or open a new terminal to apply changes.");
             }
         }
 
